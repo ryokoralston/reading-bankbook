@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Reading Bankbook (Local)</title>
+
     <style>
         body {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -37,7 +38,6 @@
         }
 
         input,
-        select,
         button {
             padding: 10px;
             border-radius: 10px;
@@ -64,6 +64,7 @@
             background: #fff;
         }
 
+        /* Bankbook lines (Date / Title / Amount / Actions) */
         .line {
             display: grid;
             grid-template-columns: 90px 1fr 120px 100px;
@@ -101,23 +102,7 @@
             justify-content: space-between;
         }
 
-        .pill {
-            display: inline-block;
-            padding: 4px 10px;
-            border: 1px solid #ddd;
-            border-radius: 999px;
-        }
-
-        @media (max-width: 860px) {
-            .line {
-                grid-template-columns: 90px 1fr 100px;
-            }
-
-            .line .hide-sm {
-                display: none;
-            }
-        }
-
+        /* BALANCE banner */
         .balance-banner {
             display: flex;
             align-items: baseline;
@@ -139,6 +124,7 @@
             font-weight: 900;
         }
 
+        /* Rating stars */
         .stars {
             display: flex;
             align-items: center;
@@ -153,36 +139,26 @@
             padding: 8px 10px;
             font-size: 20px;
             line-height: 1;
-        }
-
-        .star.is-on {
-            border-color: #111;
-            background: #fafafa;
-        }
-
-        /* Stars: yellow + sparkle */
-        .star {
             color: #111;
-            /* 未選択は黒 */
+            /* off = black */
+            position: relative;
+            overflow: hidden;
             transition: transform 120ms ease;
         }
 
         .star.is-on {
             color: #f5c400;
-            /* 選択済みは黄色 */
+            /* on = yellow */
+            border-color: #111;
+            background: #fafafa;
+            transform: translateY(-1px);
         }
 
-        /* 押した瞬間の「ポン」 */
         .star:active {
             transform: scale(0.96);
         }
 
-        /* キラッ用：星の上に光が走る */
-        .star {
-            position: relative;
-            overflow: hidden;
-        }
-
+        /* Sparkle sweep */
         .star.sparkle::after {
             content: "";
             position: absolute;
@@ -209,9 +185,40 @@
             }
         }
 
-        /* ついでに選択時に少し大きく */
-        .star.is-on {
-            transform: translateY(-1px);
+        /* Responsive */
+        @media (max-width: 860px) {
+            .line {
+                grid-template-columns: 90px 1fr 100px;
+            }
+
+            .line .hide-sm {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .pager {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .balance-banner {
+                justify-content: center;
+            }
+
+            .stars {
+                justify-content: flex-start;
+            }
+
+            .bankbook .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -254,6 +261,7 @@
                         <div class="small">Tap a star (optional)</div>
                     </label>
                 </div>
+
                 <div class="actions" style="margin-top:12px;">
                     <button type="submit">Add</button>
                 </div>
@@ -264,7 +272,7 @@
             <div class="actions" style="justify-content: space-between;">
                 <div>
                     <h3 style="margin:0 0 4px 0;">Bankbook</h3>
-                    <div class="small">Tip: Add “Read” entries to grow the balance 💰</div>
+                    <div class="small">Tip: Add entries to grow the balance 💰</div>
                 </div>
                 <div class="actions">
                     <button id="exportBtn" type="button">Export JSON</button>
@@ -326,7 +334,6 @@
         function parseUsdToCents(str) {
             const s = (str || "").trim();
             if (!s) return 0;
-            // Allow: 12, 12.3, 12.34, $12.34
             const cleaned = s.replace(/\$/g, "").replace(/,/g, "");
             if (!/^\d+(\.\d{0,2})?$/.test(cleaned)) return null;
             const [dollars, centsRaw = ""] = cleaned.split(".");
@@ -363,6 +370,7 @@
         const titleEl = document.getElementById("title");
         const authorEl = document.getElementById("author");
         const priceEl = document.getElementById("price");
+
         const ratingWrapEl = document.getElementById("rating");
         const ratingValueEl = document.getElementById("ratingValue");
 
@@ -383,7 +391,7 @@
         // ---- Init default date ----
         dateEl.valueAsDate = new Date();
 
-        // ---- Rating stars ----
+        // ---- Rating logic ----
         function setRating(val) {
             ratingValueEl.value = String(val);
             const v = Number(val);
@@ -394,7 +402,6 @@
             });
         }
 
-        // click: set 1-3, click same value again -> reset to 0
         ratingWrapEl.querySelectorAll(".star").forEach(btn => {
             btn.addEventListener("click", () => {
                 const clicked = Number(btn.dataset.value);
@@ -403,25 +410,23 @@
 
                 setRating(next);
 
-                // sparkle animation on stars that are ON
+                // sparkle on ON stars
                 ratingWrapEl.querySelectorAll(".star").forEach(s => {
                     const n = Number(s.dataset.value);
                     s.classList.remove("sparkle");
                     if (n <= next && next > 0) {
-                        // restart animation reliably
-                        void s.offsetWidth;
+                        void s.offsetWidth; // restart animation
                         s.classList.add("sparkle");
                     }
                 });
 
-                // remove sparkle class after animation ends
                 window.clearTimeout(ratingWrapEl._sparkleTimer);
                 ratingWrapEl._sparkleTimer = window.setTimeout(() => {
                     ratingWrapEl.querySelectorAll(".star").forEach(s => s.classList.remove("sparkle"));
                 }, 500);
             });
         });
-        // initial
+
         setRating(0);
 
         // ---- Add entry ----
@@ -431,12 +436,9 @@
             const date = dateEl.value;
             const title = titleEl.value.trim();
             const author = authorEl.value.trim();
-            const rating = Number(ratingValueEl.value || "0");
+            const rating = Math.max(0, Math.min(3, Number(ratingValueEl.value || 0)));
 
             if (!date || !title) return;
-
-            // Read only (Type field removed)
-            const type = "read";
 
             const cents = parseUsdToCents(priceEl.value);
             if (cents === null) {
@@ -452,7 +454,6 @@
                 author: author || "",
                 type: "read",
                 date, // YYYY-MM-DD
-                memo: memo || "",
                 cover_url: "",
                 amount_cents,
                 currency: "USD",
@@ -463,7 +464,6 @@
             entries = sortEntries([...entries, entry]);
             saveEntries(entries);
 
-            // Jump to last page so it feels "printed"
             page = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
 
             form.reset();
@@ -471,7 +471,6 @@
             dateEl.valueAsDate = new Date();
             render();
         });
-
 
         // ---- Delete entry ----
         function deleteEntry(id) {
@@ -516,23 +515,23 @@
                     row.className = "line";
 
                     const mmdd = (() => {
-                        // show MM/DD
                         const [y, m, d] = (e.date || "").split("-");
                         return (m && d) ? `${m}/${d}` : e.date;
                     })();
 
                     const amount = formatCents(e.amount_cents || 0);
+                    const stars = "★".repeat(Math.max(0, Math.min(3, Number(e.rating || 0))));
 
                     row.innerHTML = `
-                        <div>${mmdd}</div>
-                        <div title="${escapeHtml(e.title)}">
-                            ${escapeHtml(e.title)} ${stars ? `<span class="small"> ${stars}</span>` : ""}
-                        </div>
-                        <div style="text-align:right;">${amount}</div>
-                        <div class="hide-sm" style="text-align:right;">
-                            <button type="button" data-del="${e.id}">Delete</button>
-                        </div>
-                        `;
+            <div>${mmdd}</div>
+            <div title="${escapeHtml(e.title)}">
+              ${escapeHtml(e.title)} ${stars ? `<span class="small"> ${stars}</span>` : ""}
+            </div>
+            <div style="text-align:right;">${amount}</div>
+            <div class="hide-sm" style="text-align:right;">
+              <button type="button" data-del="${e.id}">Delete</button>
+            </div>
+          `;
 
                     row.querySelector("button")?.addEventListener("click", () => deleteEntry(e.id));
                     linesEl.appendChild(row);
@@ -540,8 +539,11 @@
             }
 
             prevBtn.disabled = page <= 1;
-            nextBtn.disabled = page >= maxPage;
+            nextBtn.disabled = page >= sayMax(maxPage);
         }
+
+        // helper to avoid accidental undefined issues
+        function sayMax(n) { return n; }
 
         function escapeHtml(s) {
             return (s || "").replace(/[&<>"']/g, (c) => ({
@@ -555,7 +557,7 @@
 
         // ---- Export / Import / Reset ----
         exportBtn.addEventListener("click", () => {
-            const payload = { version: 1, currency: "USD", page_size: PAGE_SIZE, entries };
+            const payload = { version: 2, currency: "USD", page_size: PAGE_SIZE, entries };
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -573,7 +575,7 @@
                 const text = await file.text();
                 const obj = JSON.parse(text);
                 const imported = Array.isArray(obj.entries) ? obj.entries : [];
-                // Very light validation
+
                 const cleaned = imported
                     .filter(e => e && typeof e.title === "string" && typeof e.date === "string")
                     .map(e => ({
@@ -584,9 +586,7 @@
                         type: "read",
                         date: String(e.date).slice(0, 10),
                         cover_url: String(e.cover_url || ""),
-                        amount_cents: Number.isFinite(e.amount_cents)
-                            ? Math.max(0, Math.round(e.amount_cents))
-                            : 0,
+                        amount_cents: Number.isFinite(e.amount_cents) ? Math.max(0, Math.round(e.amount_cents)) : 0,
                         currency: "USD",
                         rating: Math.max(0, Math.min(3, Number(e.rating || 0))),
                         created_at: Number.isFinite(e.created_at) ? e.created_at : Date.now()
