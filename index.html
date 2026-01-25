@@ -120,6 +120,28 @@
             .line .hide-sm {
                 display: none;
             }
+
+            .balance-banner {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 12px 14px;
+                border: 2px solid #111;
+                border-radius: 14px;
+                background: #fafafa;
+            }
+
+            .balance-banner .label {
+                font-weight: 800;
+                letter-spacing: 0.5px;
+            }
+
+            .balance-banner .value {
+                font-size: 28px;
+                font-weight: 900;
+            }
+
         }
     </style>
 </head>
@@ -166,12 +188,6 @@
 
                 <div class="actions" style="margin-top:12px;">
                     <button type="submit">Add</button>
-                    <span class="pill">Quick prices:</span>
-                    <button type="button" class="quick" data-v="4.99">$4.99</button>
-                    <button type="button" class="quick" data-v="5.99">$5.99</button>
-                    <button type="button" class="quick" data-v="7.99">$7.99</button>
-                    <button type="button" class="quick" data-v="9.99">$9.99</button>
-                    <button type="button" class="quick" data-v="12.99">$12.99</button>
                 </div>
             </form>
         </div>
@@ -193,7 +209,10 @@
                 <button id="prevBtn" type="button">◀ Prev</button>
                 <div class="mono">Page <span id="pageNum">1</span> / <span id="pageMax">1</span></div>
                 <button id="nextBtn" type="button">Next ▶</button>
-                <span class="pill mono">BALANCE: <span id="balanceTop">$0.00</span></span>
+                <div class="balance-banner mono">
+                    <div class="label">BALANCE</div>
+                    <div class="value" id="balanceTop">$0.00</div>
+                </div>
             </div>
 
             <div class="mono">
@@ -208,7 +227,10 @@
 
                 <div class="totals mono">
                     <div class="trow"><span>PAGE TOTAL</span><span id="pageTotal">$0.00</span></div>
-                    <div class="trow"><span>BALANCE</span><span id="balanceBottom">$0.00</span></div>
+                    <div class="trow" style="font-weight:900; font-size:18px;">
+                        <span>BALANCE</span>
+                        <span id="balanceBottom">$0.00</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -294,14 +316,6 @@
         // ---- Init default date ----
         dateEl.valueAsDate = new Date();
 
-        // ---- Quick price buttons ----
-        document.querySelectorAll(".quick").forEach(btn => {
-            btn.addEventListener("click", () => {
-                priceEl.value = btn.dataset.v;
-                priceEl.focus();
-            });
-        });
-
         // ---- Auto-set price for borrow ----
         typeEl.addEventListener("change", () => {
             if (typeEl.value === "borrow") priceEl.value = "";
@@ -380,8 +394,7 @@
             // Totals
             const balance = entries.reduce((sum, e) => sum + (e.amount_cents || 0), 0);
             const pageTotal = pageEntries.reduce((sum, e) => sum + (e.amount_cents || 0), 0);
-
-            balanceTopEl.textContent = formatCents(balance);
+            const balanceTopEl = document.getElementById("balanceTop");
             balanceBottomEl.textContent = formatCents(balance);
             pageTotalEl.textContent = formatCents(pageTotal);
 
