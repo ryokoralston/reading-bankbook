@@ -66,7 +66,7 @@
 
         .line {
             display: grid;
-            grid-template-columns: 90px 34px 1fr 120px 100px;
+            grid-template-columns: 90px 1fr 120px 100px;
             gap: 10px;
             padding: 6px 0;
             border-bottom: 1px dashed #eee;
@@ -109,38 +109,39 @@
         }
 
         @media (max-width: 860px) {
-            .row {
-                grid-template-columns: 1fr 1fr;
-            }
-
             .line {
-                grid-template-columns: 90px 34px 1fr 100px;
+                grid-template-columns: 90px 1fr 100px;
             }
+        }
 
-            .line .hide-sm {
-                display: none;
-            }
+        .line {
+            grid-template-columns: 90px 34px 1fr 100px;
+        }
 
-            .balance-banner {
-                display: flex;
-                align-items: baseline;
-                justify-content: space-between;
-                gap: 12px;
-                padding: 12px 14px;
-                border: 2px solid #111;
-                border-radius: 14px;
-                background: #fafafa;
-            }
+        .line .hide-sm {
+            display: none;
+        }
 
-            .balance-banner .label {
-                font-weight: 800;
-                letter-spacing: 0.5px;
-            }
+        .balance-banner {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 2px solid #111;
+            border-radius: 14px;
+            background: #fafafa;
+        }
 
-            .balance-banner .value {
-                font-size: 28px;
-                font-weight: 900;
-            }
+        .balance-banner .label {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .balance-banner .value {
+            font-size: 28px;
+            font-weight: 900;
+        }
 
         }
     </style>
@@ -157,13 +158,6 @@
             <h3 style="margin:0 0 10px 0;">Add an entry</h3>
             <form id="form">
                 <div class="row">
-                    <label>Type
-                        <select id="type">
-                            <option value="read">Read (adds $)</option>
-                            <option value="borrow">Borrow (adds $0.00)</option>
-                        </select>
-                    </label>
-
                     <label>Date
                         <input id="date" type="date" required />
                     </label>
@@ -178,7 +172,7 @@
 
                     <label>Price (USD)
                         <input id="price" type="text" inputmode="decimal" placeholder="e.g., 12.99" />
-                        <div class="small">For Borrow, price becomes $0.00 automatically</div>
+                        <div class="small">How much is this book worth?</div>
                     </label>
 
                     <label>Memo (optional)
@@ -218,7 +212,6 @@
             <div class="mono">
                 <div class="line header">
                     <div>Date</div>
-                    <div>Type</div>
                     <div>Title</div>
                     <div>Amount</div>
                     <div class="hide-sm">Actions</div>
@@ -292,7 +285,6 @@
 
         // ---- Elements ----
         const form = document.getElementById("form");
-        const typeEl = document.getElementById("type");
         const dateEl = document.getElementById("date");
         const titleEl = document.getElementById("title");
         const authorEl = document.getElementById("author");
@@ -316,11 +308,6 @@
         // ---- Init default date ----
         dateEl.valueAsDate = new Date();
 
-        // ---- Auto-set price for borrow ----
-        typeEl.addEventListener("change", () => {
-            if (typeEl.value === "borrow") priceEl.value = "";
-        });
-
         // ---- Add entry ----
         form.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -333,41 +320,47 @@
 
             if (!date || !title) return;
 
-            let amount_cents = 0;
-            if (type === "read") {
-                const cents = parseUsdToCents(priceEl.value);
-                if (cents === null) {
-                    alert("Price format is invalid. Use like 12.99");
-                    return;
-                }
-                amount_cents = cents;
-            } else {
-                amount_cents = 0;
+            const type = "read";
+
+            const cents = parseUsdToCents(priceEl.value);
+            if (cents === null) {
+                alert("Price format is invalid. Use like 12.99");
+                return;
             }
+            const amount_cents = cents;
+
+            if (cents === null) {
+                alert("Price format is invalid. Use like 12.99");
+                return;
+            }
+            amount_cents = cents;
+        } else {
+            amount_cents = 0;
+        }
 
             const entry = {
-                id: crypto.randomUUID(),
-                child_id: "child-1",
-                title,
-                author: author || "",
-                type, // read | borrow
-                date, // YYYY-MM-DD
-                memo: memo || "",
-                cover_url: "",
-                amount_cents,
-                currency: "USD",
-                created_at: Date.now()
-            };
+            id: crypto.randomUUID(),
+            child_id: "child-1",
+            title,
+            author: author || "",
+            type, // read | borrow
+            date, // YYYY-MM-DD
+            memo: memo || "",
+            cover_url: "",
+            amount_cents,
+            currency: "USD",
+            created_at: Date.now()
+        };
 
-            entries = sortEntries([...entries, entry]);
-            saveEntries(entries);
+        entries = sortEntries([...entries, entry]);
+        saveEntries(entries);
 
-            // Jump to last page so the child sees it "printed"
-            page = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
-            form.reset();
-            typeEl.value = "read";
-            dateEl.valueAsDate = new Date();
-            render();
+        // Jump to last page so the child sees it "printed"
+        page = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+        form.reset();
+        typeEl.value = "read";
+        dateEl.valueAsDate = new Date();
+        render();
         });
 
         // ---- Delete entry ----
@@ -421,14 +414,14 @@
                     const amount = formatCents(e.amount_cents || 0);
 
                     row.innerHTML = `
-          <div>${mmdd}</div>
-          <div>${typeMark}</div>
-          <div title="${escapeHtml(e.title)}">${escapeHtml(e.title)}</div>
-          <div style="text-align:right;">${amount}</div>
-          <div class="hide-sm" style="text-align:right;">
-            <button type="button" data-del="${e.id}">Delete</button>
-          </div>
-        `;
+                        <div>${mmdd}</div>
+                        <div title="${escapeHtml(e.title)}">${escapeHtml(e.title)}</div>
+                        <div style="text-align:right;">${amount}</div>
+                        <div class="hide-sm" style="text-align:right;">
+                            <button type="button" data-del="${e.id}">Delete</button>
+                        </div>
+                        `;
+
                     row.querySelector("button")?.addEventListener("click", () => deleteEntry(e.id));
                     linesEl.appendChild(row);
                 });
