@@ -27,7 +27,7 @@
         .row {
             display: grid;
             gap: 10px;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(5, 1fr);
         }
 
         .row>label {
@@ -112,14 +112,10 @@
             .line {
                 grid-template-columns: 90px 1fr 100px;
             }
-        }
 
-        .line {
-            grid-template-columns: 90px 34px 1fr 100px;
-        }
-
-        .line .hide-sm {
-            display: none;
+            .line .hide-sm {
+                display: none;
+            }
         }
 
         .balance-banner {
@@ -141,8 +137,6 @@
         .balance-banner .value {
             font-size: 28px;
             font-weight: 900;
-        }
-
         }
     </style>
 </head>
@@ -312,7 +306,6 @@
         form.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            const type = typeEl.value;
             const date = dateEl.value;
             const title = titleEl.value.trim();
             const author = authorEl.value.trim();
@@ -320,6 +313,7 @@
 
             if (!date || !title) return;
 
+            // Read only (Type field removed)
             const type = "read";
 
             const cents = parseUsdToCents(priceEl.value);
@@ -329,39 +323,31 @@
             }
             const amount_cents = cents;
 
-            if (cents === null) {
-                alert("Price format is invalid. Use like 12.99");
-                return;
-            }
-            amount_cents = cents;
-        } else {
-            amount_cents = 0;
-        }
-
             const entry = {
-            id: crypto.randomUUID(),
-            child_id: "child-1",
-            title,
-            author: author || "",
-            type, // read | borrow
-            date, // YYYY-MM-DD
-            memo: memo || "",
-            cover_url: "",
-            amount_cents,
-            currency: "USD",
-            created_at: Date.now()
-        };
+                id: crypto.randomUUID(),
+                child_id: "child-1",
+                title,
+                author: author || "",
+                type: "read",
+                date, // YYYY-MM-DD
+                memo: memo || "",
+                cover_url: "",
+                amount_cents,
+                currency: "USD",
+                created_at: Date.now()
+            };
 
-        entries = sortEntries([...entries, entry]);
-        saveEntries(entries);
+            entries = sortEntries([...entries, entry]);
+            saveEntries(entries);
 
-        // Jump to last page so the child sees it "printed"
-        page = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
-        form.reset();
-        typeEl.value = "read";
-        dateEl.valueAsDate = new Date();
-        render();
+            // Jump to last page so it feels "printed"
+            page = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+
+            form.reset();
+            dateEl.valueAsDate = new Date();
+            render();
         });
+
 
         // ---- Delete entry ----
         function deleteEntry(id) {
@@ -387,7 +373,8 @@
             // Totals
             const balance = entries.reduce((sum, e) => sum + (e.amount_cents || 0), 0);
             const pageTotal = pageEntries.reduce((sum, e) => sum + (e.amount_cents || 0), 0);
-            const balanceTopEl = document.getElementById("balanceTop");
+
+            balanceTopEl.textContent = formatCents(balance);
             balanceBottomEl.textContent = formatCents(balance);
             pageTotalEl.textContent = formatCents(pageTotal);
 
@@ -410,7 +397,6 @@
                         return (m && d) ? `${m}/${d}` : e.date;
                     })();
 
-                    const typeMark = e.type === "read" ? "R" : "B";
                     const amount = formatCents(e.amount_cents || 0);
 
                     row.innerHTML = `
@@ -469,7 +455,7 @@
                         child_id: e.child_id || "child-1",
                         title: String(e.title).slice(0, 120),
                         author: String(e.author || "").slice(0, 80),
-                        type: (e.type === "borrow" ? "borrow" : "read"),
+                        type: "read",
                         date: String(e.date).slice(0, 10),
                         memo: String(e.memo || "").slice(0, 140),
                         cover_url: String(e.cover_url || ""),
