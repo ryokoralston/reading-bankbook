@@ -264,7 +264,7 @@
             position: absolute;
             top: -30%;
             left: -60%;
-            © width: 60%;
+            width: 60%;
             height: 160%;
             transform: rotate(25deg);
             background: linear-gradient(90deg,
@@ -294,10 +294,10 @@
             }
 
             /*
-            .line .hide-sm {
-                display: none;
-            }
-            */
+      .line .hide-sm {
+        display: none;
+      }
+      */
         }
 
         @media (max-width: 600px) {
@@ -342,6 +342,28 @@
                 width: 100%;
             }
         }
+
+        /* -----------------------------
+       Add entry form: Responsive grid
+       ----------------------------- */
+        .row>label {
+            min-width: 0;
+        }
+
+        .row input {
+            width: 100%;
+        }
+
+        @media (max-width: 860px) {
+            .row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -395,7 +417,6 @@
                 <div>
                     <h3 style="margin:0 0 4px 0;">Bankbook</h3>
                 </div>
-
             </div>
 
             <div class="pager" style="margin:12px 0 8px 0;">
@@ -426,6 +447,7 @@
                 </div>
             </div>
         </div>
+
         <div class="card tools">
             <div class="tools-head">
                 <h3 style="margin:0 0 10px 0;">Data Backup</h3>
@@ -671,9 +693,6 @@
             prevBtn.disabled = page <= 1;
             nextBtn.disabled = page >= maxPage;
         }
-
-        // helper to avoid accidental undefined issues
-        function sayMax(n) { return n; }
 
         function escapeHtml(s) {
             return (s || "").replace(/[&<>"']/g, (c) => ({
