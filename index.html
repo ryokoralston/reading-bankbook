@@ -17,18 +17,18 @@
 
         body {
             margin: 0;
-            padding-left: max(16px, env(safe-area-inset-left));
-            padding-right: max(16px, env(safe-area-inset-right));
-
+            padding: 24px 16px 28px;
             padding-top: max(24px, env(safe-area-inset-top));
             padding-bottom: max(28px, env(safe-area-inset-bottom));
         }
 
         .wrap {
+            width: 100%;
             max-width: 920px;
             margin: 0 auto;
-            display: grid;
-            gap: 20px;
+
+            padding-left: max(0px, env(safe-area-inset-left));
+            padding-right: max(0px, env(safe-area-inset-right));
         }
 
         .card {
