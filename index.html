@@ -46,6 +46,20 @@
             padding: 20px;
         }
 
+        /* Title card (header) */
+        .wrap>.card:first-child {
+            background: linear-gradient(135deg,
+                    var(--accent),
+                    #ff4de3);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* サブテキストの色調整 */
+        .wrap>.card:first-child .small {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
         /* Prevent overflow on mobile */
         *,
         *::before,
