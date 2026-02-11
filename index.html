@@ -19,20 +19,23 @@
             margin: 0;
             padding-left: max(16px, env(safe-area-inset-left));
             padding-right: max(16px, env(safe-area-inset-right));
-            padding-top: 16px;
-            padding-bottom: 16px;
+
+            padding-top: max(24px, env(safe-area-inset-top));
+            padding-bottom: max(28px, env(safe-area-inset-bottom));
         }
 
         .wrap {
             max-width: 920px;
             margin: 0 auto;
-            width: 100%;
+            display: grid;
+            gap: 20px;
         }
 
         .card {
             border: 1px solid #ddd;
             border-radius: 12px;
-            padding: 14px;
+            padding: 16px;
+            /* 14 → 16 */
         }
 
         .row {
