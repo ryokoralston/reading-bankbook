@@ -208,10 +208,18 @@
             color: var(--accent);
         }
 
-
         .balance-banner .value {
             font-size: 28px;
             font-weight: 900;
+        }
+
+        /* ✅ BALANCEを固定ヘッダー風（sticky）＋見た目改善（影） */
+        .balance-banner {
+            position: sticky;
+            top: 8px;
+            z-index: 10;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
         }
 
         /* Rating stars */
@@ -242,14 +250,7 @@
 
         .star.is-on {
             color: #f5c400;
-            /* yellow star */
-            background: transparent;
-        }
-
-        .star.is-on {
-            color: #f5c400;
             /* on = yellow */
-            border-color: #111;
             background: #fafafa;
             transform: scale(1.05);
         }
@@ -292,12 +293,6 @@
             .line {
                 grid-template-columns: 90px minmax(0, 1fr) 100px;
             }
-
-            /*
-      .line .hide-sm {
-        display: none;
-      }
-      */
         }
 
         @media (max-width: 600px) {
@@ -415,18 +410,20 @@
         <div class="card bankbook">
             <div class="actions" style="justify-content: space-between;">
                 <div>
-                    <h3 style="margin:0 0 4px 0;">Bankbook</h3>
+                    <h3 style="margin:0;">Bankbook</h3>
                 </div>
+            </div>
+
+            <!-- ✅ BALANCE をタイトル直下へ移動 -->
+            <div class="balance-banner mono" style="margin:10px 0 4px 0;">
+                <div class="label">BALANCE</div>
+                <div class="value" id="balanceTop">$0.00</div>
             </div>
 
             <div class="pager" style="margin:12px 0 8px 0;">
                 <button id="prevBtn" type="button">◀ Prev</button>
                 <div class="mono">Page <span id="pageNum">1</span> / <span id="pageMax">1</span></div>
                 <button id="nextBtn" type="button">Next ▶</button>
-                <div class="balance-banner mono">
-                    <div class="label">BALANCE</div>
-                    <div class="value" id="balanceTop">$0.00</div>
-                </div>
             </div>
 
             <div class="mono">
@@ -704,6 +701,9 @@
         prevBtn.addEventListener("click", () => { page--; render(); });
         nextBtn.addEventListener("click", () => { page++; render(); });
 
+        // First render
+        render();
+
         // ---- Export / Import / Reset ----
         exportBtn.addEventListener("click", () => {
             const payload = { version: 2, currency: "USD", page_size: PAGE_SIZE, entries };
@@ -759,9 +759,6 @@
             page = 1;
             render();
         });
-
-        // First render
-        render();
     </script>
 </body>
 
