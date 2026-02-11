@@ -7,14 +7,6 @@
     <title>Reading Bankbook (Local)</title>
 
     <style>
-        :root {
-            --accent: #d100c9;
-            /* magenta */
-            --accent-weak: rgba(209, 0, 201, .12);
-            --accent-mid: rgba(209, 0, 201, .22);
-            --ink: #111;
-        }
-
         body {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
             margin: 20px;
@@ -53,36 +45,8 @@
             font-size: 14px;
         }
 
-        /* Subtle magenta focus (inputs) */
-        input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-weak);
-        }
-
         button {
             cursor: pointer;
-        }
-
-        button,
-        .star {
-            -webkit-tap-highlight-color: rgba(209, 0, 201, 0.18);
-        }
-
-        /* Primary button (Add) only */
-        button.primary {
-            border-color: var(--accent);
-            background: var(--accent);
-            color: #fff;
-            font-weight: 700;
-        }
-
-        button.primary:hover {
-            filter: brightness(0.97);
-        }
-
-        button.primary:active {
-            transform: translateY(1px);
         }
 
         .actions {
@@ -145,16 +109,15 @@
             justify-content: space-between;
             gap: 12px;
             padding: 12px 14px;
-            border: 2px solid var(--accent);
+            border: 2px solid #111;
             border-radius: 14px;
-            background: linear-gradient(0deg, var(--accent-weak), #fafafa);
-            box-shadow: 0 6px 18px rgba(209, 0, 201, .10);
+            background: #fafafa;
         }
 
         .balance-banner .label {
-            color: var(--accent);
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
-
 
         .balance-banner .value {
             font-size: 28px;
@@ -170,8 +133,8 @@
         }
 
         .star {
-            border: none;
-            background: transparent;
+            border: 1px solid #ccc;
+            background: #fff;
             border-radius: 10px;
             padding: 8px 10px;
             font-size: 20px;
@@ -180,17 +143,7 @@
             /* off = black */
             position: relative;
             overflow: hidden;
-            transition: transform 120ms ease, background 120ms ease;
-        }
-
-        .star:hover {
-            background: var(--accent-weak);
-        }
-
-        .star.is-on {
-            color: #f5c400;
-            /* yellow star */
-            background: transparent;
+            transition: transform 120ms ease;
         }
 
         .star.is-on {
@@ -198,7 +151,7 @@
             /* on = yellow */
             border-color: #111;
             background: #fafafa;
-            transform: scale(1.05);
+            transform: translateY(-1px);
         }
 
         .star:active {
@@ -211,14 +164,12 @@
             position: absolute;
             top: -30%;
             left: -60%;
-            © width: 60%;
+            width: 60%;
             height: 160%;
             transform: rotate(25deg);
             background: linear-gradient(90deg,
                     rgba(255, 255, 255, 0) 0%,
-                    rgba(255, 255, 255, 0.9) 40%,
-                    rgba(209, 0, 201, 0.35) 55%,
-                    rgba(255, 255, 255, 0.9) 70%,
+                    rgba(255, 255, 255, 0.9) 50%,
                     rgba(255, 255, 255, 0) 100%);
             animation: sparkle-sweep 450ms ease-out;
             pointer-events: none;
@@ -312,7 +263,7 @@
                 </div>
 
                 <div class="actions" style="margin-top:12px;">
-                    <button type="submit" class="primary">Add</button>
+                    <button type="submit">Add</button>
                 </div>
             </form>
         </div>
@@ -588,7 +539,7 @@
             }
 
             prevBtn.disabled = page <= 1;
-            nextBtn.disabled = page >= maxPage;
+            nextBtn.disabled = page >= sayMax(maxPage);
         }
 
         // helper to avoid accidental undefined issues
