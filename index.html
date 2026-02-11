@@ -173,12 +173,18 @@
             font-size: 12px;
         }
 
-        .pager {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
+        .pager button {
+            padding: 3px 7px;
+            font-size: 12px;
+            border-radius: 6px;
+            background: #fafafa;
         }
+
+        .pager button:hover {
+            background: var(--accent-weak);
+        }
+
+
 
         .totals {
             display: grid;
@@ -280,7 +286,7 @@
 
         .pager button {
             padding: 3px 7px;
-            font-size: 12px;
+            font-size: 11px;
             border-radius: 6px;
             background: #fafafa;
         }
