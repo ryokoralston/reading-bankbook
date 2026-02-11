@@ -46,6 +46,29 @@
             padding: 20px;
         }
 
+        /* Prevent overflow on mobile */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        /* Make grid items shrink properly (fixes amount pushing out) */
+        .line>div:nth-child(2) {
+            min-width: 0;
+            /* KEY: allow Title column to shrink */
+            overflow-wrap: anywhere;
+            /* long titles won't force overflow */
+        }
+
+        .line>div:nth-child(3) {
+            justify-self: end;
+            /* keep Amount inside the cell */
+            text-align: right;
+            white-space: nowrap;
+            /* keep $5.99 on one line */
+        }
+
         .row {
             display: grid;
             gap: 10px;
@@ -116,7 +139,7 @@
         /* Bankbook lines (Date / Title / Amount / Actions) */
         .line {
             display: grid;
-            grid-template-columns: 90px 1fr 120px 100px;
+            grid-template-columns: 90px minmax(0, 1fr) 120px 100px;
             gap: 10px;
             padding: 6px 0;
             border-bottom: 1px dashed #eee;
@@ -250,7 +273,7 @@
         /* Responsive */
         @media (max-width: 860px) {
             .line {
-                grid-template-columns: 90px 1fr 100px;
+                grid-template-columns: 90px minmax(0, 1fr) 100px;
             }
 
             /*
