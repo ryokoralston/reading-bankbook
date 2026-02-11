@@ -186,6 +186,7 @@
 
 
 
+
         .totals {
             display: grid;
             gap: 6px;
@@ -319,10 +320,16 @@
         }
 
         .pager {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 8px;
         }
+
+        .pager .mono {
+            text-align: center;
+        }
+
 
         .balance-banner {
             justify-content: center;
